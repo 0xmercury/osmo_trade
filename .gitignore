@@ -1,0 +1,8 @@
+*.csv
+*.log
+*.pyc
+__pycache__
+env3.10/bin/edsig
+env3.10
+.vscode/settings.json
+junoswap/try/
