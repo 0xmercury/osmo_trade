@@ -23,8 +23,7 @@ class NewStrategyInstance:
         self.pool_id: list = [678, 1]
         self.token_0_amount: Decimal = Decimal(100)
         self.token_1_amount: Decimal = Decimal(10)
-        self.interval: int = 15
-        self._datafeed = DataFeed(pool_id=self.pool_id, interval=self.interval, token_0_amount=self.token_0_amount,
+        self._datafeed = DataFeed(pool_id=self.pool_id, token_0_amount=self.token_0_amount,
                                   token_1_amount=self.token_1_amount, rpc_url=self.rpc_url, grpc_con=self._grpc_ob)
 
         # Set up logging

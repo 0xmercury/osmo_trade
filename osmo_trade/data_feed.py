@@ -23,7 +23,7 @@ class DataFeed:
     token_1_amount: amount of token_1 to calculate bid/ask of tokens.
     """
 
-    def __init__(self, pool_id: int, interval: int, token_0_amount: Decimal, token_1_amount: Decimal, rpc_url: str, grpc_con):
+    def __init__(self, pool_id: int, interval: int = None, token_0_amount: Decimal, token_1_amount: Decimal, rpc_url: str, grpc_con):
         self._pool_id: int = pool_id
         self._token_0_amount: Decimal = token_0_amount
         self._token_1_amount: Decimal = token_1_amount
