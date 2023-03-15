@@ -149,13 +149,11 @@ To get started with the SDK, you can follow these steps:
     
     2.   Second part: Once we get the signal, we make the transaction using the transaction builder class of the sdk that we imported earlier, which you can find [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L42). Then, we define the transaction builder object [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L155)Finally, we make the transaction using this function [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L196)
     
-        ```python
+        ```
+        from osmo_trade import TransactionBuild
 
-            from osmo_trade import TransactionBuild
+        # define tx object to broadcast txs.
+        tx = TransactionBuild(account= self.wallet, _host_port = self._host_port)
 
-            # define tx object to broadcast txs.
-            tx = TransactionBuild(account= self.wallet, _host_port = self._host_port)
-
-            tx_hash = tx.broadcast_exact_in_transaction(routes= routes, token_in= Coin(amount= Decimal(int(int(asset_balance.amount)*0.8)), denom= pool_assets[1]), slippage= Decimal(0.002),pools= reserve)
-                            
+        tx_hash = tx.broadcast_exact_in_transaction(routes= routes, token_in= Coin(amount= Decimal(int(int(asset_balance.amount)*0.8)), denom= pool_assets[1]), slippage= Decimal(0.002),pools= reserve)                  
         ```
