@@ -1,9 +1,9 @@
 import os
-import json,ipdb
+import json
 import grpc
 import requests
-from src import HostPort
-from src.constants import ROOT_DIR
+from osmo_trade import HostPort
+from osmo_trade.constants import ROOT_DIR
 import osmosis_protobuf.osmosis.pool_incentives.v1beta1.query_pb2 as incentives_pb
 import osmosis_protobuf.osmosis.pool_incentives.v1beta1.query_pb2_grpc as incentives_pb_grpc
 import osmosis_protobuf.cosmos.base.tendermint.v1beta1.query_pb2 as query_pb
@@ -46,14 +46,13 @@ def json_file_update() -> dict:
         for asset in pool:
             list_of_denom.append(asset['denom'])
         POOL_ASSETS[key] = list_of_denom
-    ipdb.set_trace()
     try:
-        os.remove(ROOT_DIR + "/" + ALL_DATA_FILE_NAME)
-    except OSError:
+        os.remove(os.path.join(ROOT_DIR ,ALL_DATA_FILE_NAME))
+    except FileNotFoundError:
         # means the file does not exists
         pass
 
-    with open(ROOT_DIR + "/" + ALL_DATA_FILE_NAME, "w") as g:
+    with open(os.path.join(ROOT_DIR ,ALL_DATA_FILE_NAME), "w") as g:
         token_pool_dict["all_pool_ids"] = POOL_IDS
         token_pool_dict["pool_assets"] = POOL_ASSETS
         token_pool_dict["denom_symbol"] = denom_symbols
@@ -65,7 +64,7 @@ def json_file_update() -> dict:
 
 def read_json_file():
     ALL_DATA_FILE_NAME = "essential_poolId_token_data.json"
-    with open(ROOT_DIR + "/" + ALL_DATA_FILE_NAME, "r") as file:
+    with open(os.path.join(ROOT_DIR ,ALL_DATA_FILE_NAME), "r") as file:
         read_file = json.lood(file)
     return read_file
 

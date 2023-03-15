@@ -42,9 +42,9 @@ class SwapAmountOutRoute:
 
 
 class BidAskPrice:
-    def __init__(self, bid_price: Decimal, ask_price: Decimal):
-        self.bid: Decimal = bid_price
-        self.ask: Decimal = ask_price
+    def __init__(self, bid_price, ask_price):
+        self.bid: Decimal = Decimal(bid_price)
+        self.ask: Decimal = Decimal(ask_price)
 
 class BalancerPool():
     def __init__(self, address, id, pool_params, pool_assets, total_weight, block_height):

@@ -3,7 +3,7 @@ import base64
 import datetime
 import requests
 import json
-import ipdb
+from decimal import Decimal
 from multiprocessing.pool import ThreadPool
 from google.protobuf.json_format import MessageToDict
 import osmosis_protobuf.osmosis.gamm.v1beta1.query_pb2 as query_gamms
@@ -13,8 +13,8 @@ import osmosis_protobuf.osmosis.gamm.pool_models.stableswap.stableswap_pool_pb2
 import osmosis_protobuf.osmosis.gamm.pool_models.stableswap.tx_pb2
 import osmosis_protobuf.osmosis.gamm.v1beta1.query_pb2 as query_pb
 import osmosis_protobuf.osmosis.gamm.v1beta1.query_pb2_grpc as query_pb_grpc
-from src.pools import BalancerPool, Coin, StableswapPool, BidAskPrice, Decimal, SwapAmountInRoute
-from src.config_data import get_incentive_data, json_file_update, get_block_height
+from osmo_trade._pools import BalancerPool, Coin, StableswapPool, BidAskPrice, SwapAmountInRoute
+from osmo_trade.config_data import get_incentive_data, json_file_update, get_block_height
 
 
 class DataFeed:
@@ -125,7 +125,7 @@ class DataFeed:
             pool_id=pool_id, token_0=token_0, token_1=token_1, pools_dict=pool_dict)
         return bid_ask_obj
 
-    def _bid_ask_calculation(self, pool_id: int, token_0: Decimal, token_1: Decimal, pools_dict: dict, reverse: bool = False):
+    def _bid_ask_calculation(self, pool_id: int | list, token_0: Decimal, token_1: Decimal, pools_dict: dict, reverse: bool = False):
         """
         token_0 & token_1: no of tokens with which you want to calculate ask & bid. Recommended to use the figure using which you're actually going to trade. Like if you intend to trade 100 ATOM and 1000 OSMO then use token_0 = 100 & token_1 = 1000. This way you ensure that you'll get least slippages.
 
@@ -137,30 +137,42 @@ class DataFeed:
         Note: reverse flag will enable to calculate bid/ask in the other asset of the pool. By default, it calculates bid/ask in terms of OSMO.
         """
         pools_list = list(pools_dict.values())
-        current_pool = pools_dict[pool_id]
-        routes = [SwapAmountInRoute(
-            pool_id, current_pool.pool_assets[1].token.denom)]
-        pool_filter = self._relevant_pools(pools_list, routes)
-        token_in: Coin = Coin(
-            denom=current_pool.pool_assets[0].token.denom, amount=token_0*pow(10, self._all_token_decimal_data['asset_decimals'][current_pool.pool_assets[0].token.denom]))
-        sell_token = self.multihop_routed_swap(
-            pool_filter, self._incentivized_pools_list, token_in, routes)
-        routes = [SwapAmountInRoute(
-            pool_id, current_pool.pool_assets[0].token.denom)]
-        token_in: Coin = Coin(
-            denom=current_pool.pool_assets[1].token.denom, amount=token_1*pow(10, self._all_token_decimal_data['asset_decimals'][current_pool.pool_assets[1].token.denom]))
-        buy_token = self.multihop_routed_swap(
-            pool_filter, self._incentivized_pools_list, token_in, routes)
-        if reverse:
-            bid_price = Decimal(sell_token.amount/(token_0 * pow(
-                10, self._all_token_decimal_data['asset_decimals'][sell_token.denom])))
-            ask_price = Decimal(
-                (token_1 * pow(10, self._all_token_decimal_data['asset_decimals'][buy_token.denom])) / buy_token.amount)
+        if len(pools_list) > 1:
+            pool_0 = pools_list[0]
+            pool_1 = pools_list[1]
+            routes = [SwapAmountInRoute(pool_0.id, pool_0.pool_assets[1].token.denom), SwapAmountInRoute(
+                pool_1.id, pool_1.pool_assets[0].token.denom)]
+            token_in = Coin(denom=pool_0.pool_assets[0].token.denom, amount=token_0*pow(
+                10, self._all_token_decimal_data['asset_decimals'][pool_0.pool_assets[0].token.denom]))
+            sell_token = self.multihop_routed_swap(
+                pools_list, self._incentivized_pools_list, token_in, routes)
+            routes = [SwapAmountInRoute(pool_1.id, pool_1.pool_assets[1].token.denom), SwapAmountInRoute(
+                pool_0.id, pool_0.pool_assets[0].token.denom)]
+            token_in = Coin(denom=pool_1.pool_assets[0].token.denom, amount=token_1*pow(
+                10, self._all_token_decimal_data['asset_decimals'][pool_1.pool_assets[0].token.denom]))
+            buy_token = self.multihop_routed_swap(
+                pools_list, self._incentivized_pools_list, token_in, routes)
         else:
-            bid_price = Decimal(
-                (token_0 * pow(10, self._all_token_decimal_data['asset_decimals'][sell_token.denom]))/sell_token.amount)
-            ask_price = Decimal(buy_token.amount/(token_1 * pow(
-                10, self._all_token_decimal_data['asset_decimals'][buy_token.denom])))
+            current_pool = pools_dict[pool_id]
+            routes = [SwapAmountInRoute(
+                pool_id, current_pool.pool_assets[1].token.denom)]
+            pool_filter = self._relevant_pools(pools_list, routes)
+            token_in: Coin = Coin(
+                denom=current_pool.pool_assets[0].token.denom, amount=token_0*pow(10, self._all_token_decimal_data['asset_decimals'][current_pool.pool_assets[0].token.denom]))
+            sell_token = self.multihop_routed_swap(
+                pool_filter, self._incentivized_pools_list, token_in, routes)
+            routes = [SwapAmountInRoute(
+                pool_id, current_pool.pool_assets[0].token.denom)]
+            token_in: Coin = Coin(
+                denom=current_pool.pool_assets[1].token.denom, amount=token_1*pow(10, self._all_token_decimal_data['asset_decimals'][current_pool.pool_assets[1].token.denom]))
+            buy_token = self.multihop_routed_swap(
+                pool_filter, self._incentivized_pools_list, token_in, routes)
+        if reverse:
+            bid_price = Decimal(sell_token.amount/(token_0 * pow( 10, self._all_token_decimal_data['asset_decimals'][sell_token.denom])))
+            ask_price = Decimal( (token_1 * pow(10, self._all_token_decimal_data['asset_decimals'][buy_token.denom])) / buy_token.amount)
+        else:
+            ask_price = Decimal( (token_0 * pow(10, self._all_token_decimal_data['asset_decimals'][sell_token.denom]))/sell_token.amount)
+            bid_price = Decimal(buy_token.amount/(token_1 * pow( 10, self._all_token_decimal_data['asset_decimals'][buy_token.denom])))
         return BidAskPrice(bid_price, ask_price)
 
     @staticmethod

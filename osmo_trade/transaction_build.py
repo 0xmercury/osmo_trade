@@ -1,16 +1,17 @@
 import sys
 from mospy import Transaction
 from mospy.clients import GRPCClient
+from decimal import Decimal
 import osmosis_protobuf.osmosis.gamm.v1beta1.tx_pb2 as tx_osmosis
 from osmosis_protobuf.osmosis.gamm.v1beta1.tx_pb2 import MsgSwapExactAmountIn, MsgSwapExactAmountOut
-from src.pools import SwapAmountInRoute, SwapAmountOutRoute, Coin, Decimal
+from osmo_trade._pools import SwapAmountInRoute, SwapAmountOutRoute, Coin
 
 
 class TransactionBuild:
     def __init__(self, account, _host_port):
         self._account = account
         self._client = GRPCClient(
-            host=_host_port.host, port=_host_port.port, protobuf='osmosis')
+            host=_host_port.host, port=_host_port.port, ssl= _host_port.ssl, protobuf='osmosis')
 
     def _create_message_transaction_swap_exact_amount_in(self, routes: [SwapAmountInRoute], token_in: Coin, token_out_min_amount: Decimal) -> MsgSwapExactAmountIn:
         msg = MsgSwapExactAmountIn()

@@ -2,7 +2,7 @@
 *.log
 *.pyc
 __pycache__
-env3.10/bin/edsig
-env3.10
+env3.10/
 .vscode/settings.json
-junoswap/try/
+build/
+osmo_trade.egg-info/
