@@ -1,37 +1,23 @@
 ***
 ## About Example Strategy
 
-**_Momentum Strategy_**
+**_CEX-DEX Arb_**
 
-##### For code [click here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py)
+##### For code [click here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py)
 
-This script demonstrates an implementation of the Momentum trading strategy using the SDK and its functions. The strategy involves comparing the historical price data for each block to the current block's price data in order to determine whether to take a long position or close an existing long position. To facilitate this, we create a history data queue to keep track of the most recent n blocks of data.
+This script demonstrates an implementation of the CEX-DEX arb specifically b/w Binance & Osmosis DEX taken ATOM as the token, using the SDK and its functions. The strategy involves fetching the bid/ask block by block from Osmosis and Binance together then calculate the spread b/w Ask & Bid of both the exchanges. We'll explain in detail below. 
 
 Algorithm:
-- Initialize a history data queue with the last n blocks of data
 - At each iteration:
-    - Compare the price data for each block in the queue to the current block's price data
-    - If the current block's price data is greater than all the historical block price data, take a long position
-    - If the current block's price data is less than all the historical block price data and we have a long position, close our position
-    - Discard the oldest data from our history data queue and add the current block data for the next iteration
+    - Fetch the pool reserves of ATOM/OSMO, USDC/OSMO pool and calculate the bid/ask of the atom-usdc by combining both the pools.
+    - Fetch the Bid/Ask of ATOMUSDT on Binance.
+    - Calculate the entry_spread & exit_spread b/w the prices of both the exchanges.
+    - If entry_spread > 10 bps then we'll swap USDC -> ATOM position. 
+    - IF exit_spread > 0 bps then we'll swap back ATOM -> USDC position.
 
-In the example script, we are using pool 678 (Osmo/Usdc pool).
+In the example script, we are using pool_id= 678 (USDC/OSMO) pool and pool_id= 1 (ATOM/OSMO) pool.
 
-To run this script, you need to define your mnemonic key and RPC URL, LCD URL, and gRPC URL in the strategy.env file, which you need to specifically as explained in README.md
-
-
-    # Import necessary modules and functions
-
-    # Define mnemonic key and RPC URL, LCD URL, and gRPC URL
-
-    # Define the size of the history data queue (n)
-
-    # Initialize the history data queue with the last n blocks of data
-
-    # Implement the trading strategy
-
-    # Close any existing positions at the end of the script
-
+To run this script, you need to define your mnemonic key and RPC URL, LCD URL, and gRPC URL in the strategy.env file, which you need to specifically as explained in [README.md](https://github.com/0xmercury/osmo_trade#mandatory-step).  
 
 ### Step to run exmaple strategy and SDK use.
 
@@ -73,21 +59,17 @@ To get started with the SDK, you can follow these steps:
 
 
 3. Import the SDK modules and classes you need: :
-    import in our example script [here](https://github.com/0xmercury/osmo_trade/blob/master/example_momentum_strategy.py#L39)
+    import in our example script [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L5)
 
     ```python
-        from osmo_trade import create_osmo_wallet
-        from osmo_trade import check_dir
-        from osmo_trade._pools import Coin, SwapAmountInRoute
-        from osmo_trade import DataFeed, HostPort, TransactionBuild, SwapAmountInRoute, Coin, ROOT_DIR, CURR_DIR
+        from osmo_trade import DataFeed, HostPort, TransactionBuild, SwapAmountInRoute, BidAskPrice, Coin, ROOT_DIR, CURR_DIR
         from osmo_trade import create_osmo_wallet, check_dir, grpc_connection, wallet_balance
     ```
 
-4. After that, we inilize the initial variable in our init function of class [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L48).
+4. After that, we inilize the initial variable in our init function of class [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L12).
 
     In this function: 
-    * we read config file [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L49)
-    * set varibales value [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L52):
+    * we read the config file and initialize the required variables:
         * define LCD, RPC and gRPC URL and Create a gRPC connection object.
             ```python
                 self.rpc_url = os.environ.get("RPC_URL")
@@ -108,14 +90,15 @@ To get started with the SDK, you can follow these steps:
           ```
         * Create a DataFeed object:
             ```python
-                self.pool_id = "<your pool id>"
-                self.interval = 30 # time interval between data points in seconds
+                self.pool_id = [678, 1]
+                # whatever pool is in the start will be considered as token_0 and then token_1.
+                # In this case, pool_id = [678, 1] so token_0 is USDC & token_1 is ATOOM.
                 self.token_0_amount = 100 # amount of token 0 you want to use in the pricing data calculation
-                self.token_1_amount = 100 # amount of token 1 you want to use in the pricing data calculation
+                self.token_1_amount = 10 # amount of token 1 you want to use in the pricing data calculation
                 
-                self._datafeed = DataFeed(pool_id= self.pool_id, interval= self.interval, token_0_amount= self.token_0_amount, token_1_amount= self.token_1_amount, rpc_url= self.rpc_url, grpc_con= self._grpc_ob)
+                self._datafeed = DataFeed(pool_id= self.pool_id, token_0_amount= self.token_0_amount, token_1_amount= self.token_1_amount, rpc_url= self.rpc_url, grpc_con= self._grpc_ob)
             ```
-5.  Then, we check if the directory where our log file will be created is available or not. If the directory is not present, this function will create it and set the logging file configuration, which you can find [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L68).
+5.  Then, we check if the directory where our log file will be created is available or not. If the directory is not present, this function will create it and set the logging file configuration, which you can find [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L31).
     
     ```python
         path, file = os.path.split(self.log_file)
@@ -124,38 +107,39 @@ To get started with the SDK, you can follow these steps:
         logging.getLogger().addHandler(logging.StreamHandler())
     ```
 
-6. After that, we run the main function  [**run_strategy()**](https://github.com/0xmercury/osmo_trade/blob/master/example_momentum_strategy.py#L214) from where we write our strategy code. You can find the function definition [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L140). Our strategy has two parts:
+6. After that, we run the main function  [**strategy_core()**](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L61) from where we write our strategy code. Our strategy has two parts:
+
+    1. We start by collecting the pool reserves of pool 678 & 1 then calculating the bid/ask of ATOM/USDC by comininb both the pools. We've assumed to calculate the bid/ask using 100 USDC & 10 ATOM. [Here's the function](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L80)
     
-    1. First part: In this part, we collect bid-ask data of the last three blocks and maintain a queue to keep a history of signals. We use a self-defined function, which you can find [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L164) to generate historical price data queue. You can find the function definition [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L82).
+        ```python
+            osmosis_bid_ask = datafeed._bid_ask_calculation( self.pool_id, self.token_0_amount, self.token_1_amount, pool_reserves_dict, reverse=False)
+        ```
+        
+        After which we fetch the binance ATOMUSDT bid/ask [using this](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L54)
         
         ```python
-            historical_price_data_queue = self.get_multiple_block_bid_ask_data(historicl_old_block_point)
+            binance_bid_ask = self.get_binance_price()
         ```
-    
-        Once the historical data is generated, we move to the next step and fetch the current or latest block height data by using another self-defined function, which you can find [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L174)
-    
-        ```python
-        reserve, bid_ask_data, new_block_height = self.get_current_block_bid_ask_data()
-        ``` 
-        You can find the function definition [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L123). In both the functions, **get_current_block_bid_ask_data()** and **get_multiple_block_bid_ask_data()**, we use an sdk function to get reserve and bid-ask data.
+        
+        Following which, we simply calculate the spread for [entry & exit conditions](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L47)
         
         ```python
-
-        reserve, block_height = datafeed.get_pool_reserves(pool_ids=[self.pool_id])
-
-        bid_ask_data = datafeed._bid_ask_calculation(pool_id=self.pool_id, token_0=self.token_0_amount, token_1=self.token_1_amount, pools_dict=reserve)
+            entry_spread, exit_spread = self.signal_using_spread( binance_bid_ask, osmosis_bid_ask)
         ```
-        Then, we run the loop for every block and and and compare the latest block data with the historical data and find the signal [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L189)
-    
-    2.   Second part: Once we get the signal, we make the transaction using the transaction builder class of the sdk that we imported earlier, which you can find [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L42). Then, we define the transaction builder object [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L155)Finally, we make the transaction using this function [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_momentum_strategy.py#L196)
-    
+        
+        Then, we run the loop for every block and check the signal [here](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L81)
+        
         ```python
-
+            if entry_spread > 10 and not is_long_position:
+            elif exit_spread > 0 and is_long_position:
+        ```
+    
+    2.   Once we get the signal, we make the transaction using the transaction builder class of the sdk that we imported earlier. Then we simply define & make the transaction [using the tx object](https://github.com/0xmercury/osmo_trade/blob/master/examples/example_cex_dex/example_cex_dex.py#L87)
+        
+        ```python
             from osmo_trade import TransactionBuild
-
             # define tx object to broadcast txs.
             tx = TransactionBuild(account= self.wallet, _host_port = self._host_port)
-
-            tx_hash = tx.broadcast_exact_in_transaction(routes= routes, token_in= Coin(amount= Decimal(int(int(asset_balance.amount)*0.8)), denom= pool_assets[1]), slippage= Decimal(0.002),pools= reserve)
-                            
+            tx_hash = tx.broadcast_exact_in_transaction(routes=routes, token_in=Coin(amount=int(
+                    asset_balance.amount*0.98), denom=usdc_pool_assets[0]), slippage=Decimal(0.002), pools=pool_reserves)                  
         ```
