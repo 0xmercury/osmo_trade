@@ -20,6 +20,17 @@ Components in osmo_trade:
 
 Detailed documentation can be found in the examples directory where we try to explain each component of the SDK in much detail.
 
+## Installation
+
+```python 
+pip install osmo_trade 
+```
+
+### Note:
+If you want to run by customizing the SDK itself. Then git clone the repo, make your changes and do:
+
+`` pip install .`` in the cloned directory.
+
 ## Mandatory Step
 
 - First of all, User have to define the env file in their current working directory with the following fields:
