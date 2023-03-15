@@ -171,7 +171,7 @@ class StableswapPool:
         self.id: int = int(id)
         self.pool_params: PoolParams = PoolParams(
             pool_params['swapFee'], pool_params['exitFee'])
-        self.pool_liquidity = [Coin(i['denom'], i['amount'])
+        self.pool_liquidity = [Coin(denom= i['denom'], amount= i['amount'])
                                for i in pool_liquidity]
         self.scaling_factors: list = [Decimal(i) for i in scaling_factors]
         self.block_height: int = block_height
