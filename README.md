@@ -18,14 +18,18 @@ Components in osmo_trade:
 * [TransactionBuilder](https://github.com/hachi-27/osmosis_grant/blob/main/src/transaction_build.py#L9): This class is used to build your transactions however you want. It'll return the **txn_hash, logs, code** to tell the user whether the transaction is successful.
 * [Strategy](https://github.com/hachi-27/osmosis_grant/blob/main/main.py): We've setup an example code to really explain what each component is doing. And that is how user just need to make a script like this which will contain the strategy logic.
 
+Detailed documentation can be found in the examples directory where we try to explain each component of the SDK in much detail.
+
 ## Mandatory Step
 
-User have to explicitly define the following params in [this file](https://github.com/hachi-27/osmosis_grant/blob/main/envs/strategy.env):
-* MNEMONIC
-* RPC_URL
-* gRPC_host and gRPC_port
-* REST_URL
+- First of all, User have to define the env file in their current working directory with the following fields:
 
+  * MNEMONIC
+  * RPC_URL
+  * gRPC_host and gRPC_port
+  * REST_URL
+
+  A very good example of env file can be found [here](https://github.com/0xmercury/osmo_trade/blob/master/envs/strategy.env)
 
 ### FAQ:
 What to do when user is getting the following error after installing the package for the first time:
