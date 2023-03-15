@@ -45,7 +45,6 @@ class NewStrategyInstance:
 
     @staticmethod
     def signal_using_spread(binance_price: BidAskPrice, osmosis_price: BidAskPrice):
-        # calc["entry_0"], calc['exit_0'] = (1-calc["osmo_atom_ask"]/calc["ATOM_Binance_bid"])*10000, (1-calc["ATOM_Binance_ask"]/calc["osmo_atom_bid"])*10000
         entry_spread = (1 - osmosis_price.ask/binance_price.bid)*10000
         exit_spread = (1 - binance_price.ask/osmosis_price.bid)*10000
         return entry_spread, exit_spread
