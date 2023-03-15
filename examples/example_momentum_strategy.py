@@ -36,20 +36,19 @@ import ipdb
 import os
 import time
 import logging
-from osmo_trade import DataFeed
 from osmo_trade import create_osmo_wallet
 from osmo_trade import check_dir
+from osmo_trade._pools import Coin, SwapAmountInRoute
+from osmo_trade import DataFeed, HostPort, TransactionBuild, SwapAmountInRoute, Coin, ROOT_DIR, CURR_DIR
+from osmo_trade import create_osmo_wallet, check_dir, grpc_connection, wallet_balance
 from decimal import Decimal
 from dotenv import load_dotenv
-from osmo_trade.pools import Coin, Decimal, SwapAmountInRoute
-from osmo_trade import DataFeed, HostPort, TransactionBuild, SwapAmountInRoute, Coin
-from osmo_trade import create_osmo_wallet, check_dir, grpc_connection, wallet_balance
-
 
 class NewStrategyInstance:
     def __init__(self, env_file_path: str):
         load_dotenv(env_file_path)
-        self.log_file: str = os.environ.get("LOG_FILE")
+        # Need to update the directory of log_file accordingly from wherever you'd want to store the log file
+        self.log_file: str =  os.path.join(CURR_DIR.replace("examples", "") , os.environ.get("LOG_FILE"))
         self.mnemonic: str = os.environ.get("MNEMONIC")
         self.rpc_url: str = os.environ.get("RPC_URL")
         self.rest_url: str = os.environ.get("REST_URL")
@@ -65,10 +64,12 @@ class NewStrategyInstance:
                                   token_1_amount=self.token_1_amount, rpc_url=self.rpc_url, grpc_con=self._grpc_ob)
 
         # Set up logging
-        check_dir(self.log_file.split("/")[0])
-        logging.basicConfig(filename=os.environ.get(
-            "LOG_FILE"), encoding='utf-8', level=logging.INFO)
+        # ipdb.set_trace()
+        path, file = os.path.split(self.log_file)
+        check_dir(path)
+        logging.basicConfig(filename= self.log_file, encoding='utf-8', level=logging.INFO)
         logging.getLogger().addHandler(logging.StreamHandler())
+
 
     '''
         This is a function to maintain history queue data this function call only one time intially
@@ -109,7 +110,7 @@ class NewStrategyInstance:
                 time.sleep(0.5)
             except Exception as ex:
                 print("Getting error:: ", str(ex))
-                ipdb.set_trace()
+                # ipdb.set_trace()
 
         return historical_price_data_queue
 
@@ -203,8 +204,7 @@ class NewStrategyInstance:
                             pool_id=self.pool_id, denom=pool_assets[0])]
                         asset_balance = [
                             item for item in all_token_balance if item.denom == pool_assets[1]][0]
-                        tx_hash = tx.broadcast_exact_in_transaction(routes=routes, token_in=Coin(amount=Decimal(int(
-                            int(asset_balance.amount)*0.8)), denom=pool_assets[1]), slippage=Decimal(0.002), pools=reserve)
+                        tx_hash = tx.broadcast_exact_in_transaction(routes=routes, token_in=Coin(amount=Decimal(int( int(asset_balance.amount)*0.8)), denom=pool_assets[1]), slippage=Decimal(0.002), pools=reserve)
                         print("Transaction Hash: ", tx_hash)
                         is_long_position = False
 
@@ -223,6 +223,7 @@ class NewStrategyInstance:
                 print("Got an error: ", str(ex))
 
 
-ipdb.set_trace()
-strategy_obj = NewStrategyInstance("envs/strategy.env")
+# ipdb.set_trace()
+ENV_FILE_DIR = os.path.join(CURR_DIR.replace("examples", "") , "envs/strategy.env")
+strategy_obj = NewStrategyInstance(ENV_FILE_DIR)
 strategy_obj.run_strategy()

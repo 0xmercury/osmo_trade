@@ -27,6 +27,7 @@ mnemonic==0.20
 mospy-wallet==0.3.4
 nest-asyncio==1.5.6
 numpy==1.24.2
+osmo-trade==0.1.0
 osmosis_protobuf==0.1.0
 parso==0.8.3
 pexpect==4.8.0
