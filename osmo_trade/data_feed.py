@@ -1,3 +1,4 @@
+from typing import Union
 import codecs
 import base64
 import datetime
@@ -125,7 +126,7 @@ class DataFeed:
             pool_id=pool_id, token_0=token_0, token_1=token_1, pools_dict=pool_dict)
         return bid_ask_obj
 
-    def _bid_ask_calculation(self, pool_id: int | list, token_0: Decimal, token_1: Decimal, pools_dict: dict, reverse: bool = False):
+    def _bid_ask_calculation(self, pool_id: Union[int , list], token_0: Decimal, token_1: Decimal, pools_dict: dict, reverse: bool = False):
         """
         token_0 & token_1: no of tokens with which you want to calculate ask & bid. Recommended to use the figure using which you're actually going to trade. Like if you intend to trade 100 ATOM and 1000 OSMO then use token_0 = 100 & token_1 = 1000. This way you ensure that you'll get least slippages.
 
