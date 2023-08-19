@@ -11,7 +11,7 @@ This script aims to automate operations related to the Osmosis blockchain CL, su
 
 ### Prerequisites:
 
-- Required libraries: `requests`, `mospy`, `pandas`, `json`, `osmosis_protobuf`
+- Required libraries: `requests`, `mospy`, `pandas`, `json`, `osmosis_protobuf` , `grpc` , `protbuf`
 - requirements.txt in this folder will install mostly all above for you
      pip install -r requirements.txt
   
