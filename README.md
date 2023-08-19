@@ -11,14 +11,15 @@ This script aims to automate operations related to the Osmosis blockchain CL, su
 
 ### Prerequisites:
 
-- Required libraries: `requests`, `mospy`, `pandas`, `json`, `cosmospy_protobuf`
+- Required libraries: `requests`, `mospy`, `pandas`, `json`, `osmosis_protobuf`
+- requirements.txt in this folder will install mostly all above for you
+     pip install -r requirements.txt
   
-  Install these using pip:
+  Install these using pip
 
-  ```bash
-  pip install requests mospy pandas cosmospy_protobuf
-  ```
-
+  
+  
+  
 ### Setup:
 
 1. Ensure that you have a `private_info.json` file in the same directory as the script. The file should contain:
