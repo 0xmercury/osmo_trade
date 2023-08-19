@@ -1,0 +1,4 @@
+osmosis_protobuf==0.1.0
+grpcio==1.47.2
+mospy-wallet==0.3.4
+protobuf==4.21.3
