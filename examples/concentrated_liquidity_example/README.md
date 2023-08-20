@@ -20,7 +20,7 @@ This script aims to automate operations related to the Osmosis blockchain CL, su
    ```json
    {
        "mnemonic_key": "YOUR_MNEMONIC_KEY",
-       "osmo_address": "YOUR_STRIDE_ADDRESS"
+       "osmo_address": "YOUR_OSMO_ADDRESS"
    }
    ```
 
