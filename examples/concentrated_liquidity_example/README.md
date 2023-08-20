@@ -12,6 +12,7 @@ This script aims to automate operations related to the Osmosis blockchain CL, su
 ### Prerequisites:
 
 - Required libraries: run "pip install -r requirements.txt"  this will install all libs for you
+- pip install osmo_trade
 
 ### Setup:
 
