@@ -57,10 +57,10 @@ def get_pools():
 
 
 
-def fetch_account_data(stride_address):
-    print(f"Fetching account data for Stride address: {stride_address}")
+def fetch_account_data(osmo_address):
+    print(f"Fetching account data for osmo address: {osmo_address}")
 
-    response = requests.get(f"{rest_endpoint}/cosmos/auth/v1beta1/accounts/{stride_address}")
+    response = requests.get(f"{rest_endpoint}/cosmos/auth/v1beta1/accounts/{osmo_address}")
 
     if response.status_code == 200:
         
@@ -68,14 +68,14 @@ def fetch_account_data(stride_address):
         if "base_vesting_account" in account_data["account"]:
             acc_number = int(account_data["account"]['base_vesting_account']['base_account']["account_number"])
             sequence = int(account_data["account"]['base_vesting_account']['base_account']["sequence"])
-            print(f"Stride Account number: {acc_number}")
-            print(f"Stride Sequence number: {sequence}")
+            print(f"osmo Account number: {acc_number}")
+            print(f"osmo Sequence number: {sequence}")
             return acc_number, sequence
         elif "account_number" in account_data["account"]:
             acc_number = int(account_data["account"]["account_number"])
             sequence = int(account_data["account"]["sequence"])
-            print(f"Stride Account number: {acc_number}")
-            print(f"Stride Sequence number: {sequence}")
+            print(f"osmo Account number: {acc_number}")
+            print(f"osmo Sequence number: {sequence}")
             return acc_number, sequence
         else:
             raise Exception("Status code :{}, reason: {}, error: problem in fetching in acc details".format(response.status_code, response.reason))
