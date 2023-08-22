@@ -10,7 +10,8 @@ This script aims to automate operations related to the Osmosis blockchain CL, su
 3. Creating, withdrawing, and adding to positions.
 
 ### Prerequisites:
-
+- conda create -n envname python=3.9 anaconda
+- conda activate envname
 - Required libraries: run "pip install -r requirements.txt"  this will install all libs for you
 - pip install osmo_trade
 - pip uninstall gmpy2 -> do this in case some error
