@@ -54,8 +54,8 @@ Example:
         "upper_tick": 105079000,
         "amount0": "5000000",
         "amount1": "3829300974491989575",
-        "token_min_amount0": "2075000",
-        "token_min_amount1": "1033568450129689835"
+        "token_min_amount0": "207500",
+        "token_min_amount1": "10335684501296898"
     }
 
     
